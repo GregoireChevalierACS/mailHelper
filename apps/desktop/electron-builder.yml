@@ -1,0 +1,25 @@
+# Installeur Windows. Seul dist/ est empaqueté : tout le code y est déjà embarqué (tsdown, vite),
+# et dist/package.json, écrit au build, ne déclare aucune dépendance.
+appId: fr.mailhelper.desktop
+productName: MailHelper
+directories:
+  app: dist
+  output: release
+# electron-builder recherche les dépendances en remontant jusqu'au paquet du dépôt : on les écarte,
+# puisque le code (SDK Anthropic, zod, React…) est déjà embarqué dans dist/.
+files:
+  - '**/*'
+  - '!**/node_modules/**'
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+    - target: portable
+      arch: [x64]
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  artifactName: MailHelper-Setup-${version}.${ext}
+portable:
+  artifactName: MailHelper-${version}-portable.${ext}
