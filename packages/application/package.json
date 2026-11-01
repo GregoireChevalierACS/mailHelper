@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "fast-check": "4.10.2",
-    "tsdown": "0.23.2",
+    "tsdown": "0.23.3",
     "vitest": "4.1.12"
   }
 }
