@@ -23,8 +23,8 @@
     "@stryker-mutator/core": "10.1.1",
     "@stryker-mutator/typescript-checker": "10.1.1",
     "@stryker-mutator/vitest-runner": "10.1.1",
-    "fast-check": "4.10.2",
-    "tsdown": "0.23.3",
+    "fast-check": "4.10.3",
+    "tsdown": "0.23.7",
     "vitest": "4.1.12"
   }
 }
