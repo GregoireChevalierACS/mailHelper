@@ -1,8 +1,7 @@
 import type { BoiteDeReception, CritereDeRecherche, LotDeCourriels } from '@mailhelper/application';
 import type { SaisieDeCorrespondant, SaisieDeCourriel } from '@mailhelper/domain';
+import { enLotDeCourriels, estUneDiffusionDeMasse, lireLeJson } from '@mailhelper/messagerie';
 import { z } from 'zod';
-import { estUneDiffusionDeMasse } from '../messagerie/enTetes.js';
-import { enLotDeCourriels, lireLeJson } from '../messagerie/recuperation.js';
 import { texteDepuisLeHtml } from '../messagerie/texteDepuisLeHtml.js';
 
 const API = 'https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messages';

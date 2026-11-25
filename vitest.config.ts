@@ -28,6 +28,10 @@ export default defineConfig({
         'packages/domain/src/**': TOUT,
         // La couche application valide ce que renvoie le LLM et orchestre : chaque branche compte.
         'packages/application/src/**': TOUT,
+        // Utilitaires et adapter IMAP partagés avec les autres applications (relaisMetier) :
+        // chaque branche est un cas réel, vérifié contre GreenMail pour l'IMAP.
+        'packages/messagerie/src/**': TOUT,
+        'packages/imap/src/**': TOUT,
         // Les adapters traduisent Gmail, Graph, Claude et OAuth : chaque branche est un cas réel.
         'apps/desktop/src/main/**': TOUT,
         // L'interface est testée par ses comportements (Testing Library).

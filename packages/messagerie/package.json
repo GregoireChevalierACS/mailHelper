@@ -1,0 +1,30 @@
+{
+  "name": "@mailhelper/messagerie",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Utilitaires communs aux adapters de messagerie : en-têtes, contrat de la boîte appliqué aux réponses brutes.",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@mailhelper/application": "workspace:*",
+    "@mailhelper/domain": "workspace:*"
+  },
+  "devDependencies": {
+    "tsdown": "0.23.3",
+    "vitest": "4.1.12"
+  }
+}
