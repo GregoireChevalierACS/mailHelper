@@ -24,7 +24,7 @@
     "@mailhelper/domain": "workspace:*"
   },
   "devDependencies": {
-    "tsdown": "0.23.3",
+    "tsdown": "0.23.7",
     "vitest": "4.1.12"
   }
 }
