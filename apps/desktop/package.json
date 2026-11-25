@@ -15,6 +15,7 @@
     "@anthropic-ai/sdk": "1.3.0",
     "@mailhelper/application": "workspace:*",
     "@mailhelper/domain": "workspace:*",
+    "@mailhelper/messagerie": "workspace:*",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "zod": "4.6.7"

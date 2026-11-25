@@ -67,11 +67,21 @@ Créez une clé sur [platform.claude.com](https://platform.claude.com/) et rense
 | `pnpm test:mutation`     | Test de mutation du domaine (Stryker, seuil 80 %)                 |
 | `pnpm build`             | Build de production (bibliothèques, processus principal, fenêtre) |
 
+Les tests du paquet `imap` parlent à un vrai serveur IMAP de test, GreenMail, sans authentification (ADR 0008) :
+
+```sh
+docker run -d --name greenmail -p 3143:3143 -e GREENMAIL_OPTS="-Dgreenmail.setup.test.imap -Dgreenmail.hostname=0.0.0.0 -Dgreenmail.auth.disabled" greenmail/standalone:2.1.15
+```
+
+Les variables `GREENMAIL_HOTE` (`127.0.0.1` par défaut) et `GREENMAIL_PORT_IMAP` (`3143`) désignent un autre serveur. La CI le lance comme service Docker.
+
 ## Organisation
 
 ```
 packages/domain        règles métier pures (aucune dépendance)
 packages/application   cas d'usage, ports, contrats zod
+packages/messagerie    utilitaires communs aux adapters (en-têtes, contrat appliqué aux réponses)
+packages/imap          boîte IMAP et dépôt de brouillons, pour d'autres applications (ADR 0008)
 apps/desktop
   src/main             processus principal : adapters Gmail, Graph, Claude, OAuth, IPC
   src/preload          pont minimal vers la fenêtre

@@ -28,6 +28,27 @@ export interface Analyseur {
   analyser(courriel: Courriel): Promise<unknown>;
 }
 
+/** Fichier joint à un brouillon : le devis PDF qui accompagne une réponse, par exemple. */
+export interface PieceJointe {
+  readonly nom: string;
+  /** Type MIME : « application/pdf »… */
+  readonly type: string;
+  readonly contenu: Uint8Array;
+}
+
+export interface BrouillonADeposer {
+  readonly brouillon: BrouillonDeReponse;
+  readonly piecesJointes: readonly PieceJointe[];
+}
+
+/**
+ * Dépose un brouillon dans la messagerie de l'utilisateur, qui le relit et l'envoie lui-même :
+ * rien n'est jamais envoyé. Contrat vérifié par `verifierLeContratDuDepositaireDeBrouillon`.
+ */
+export interface DepositaireDeBrouillon {
+  deposer(depot: BrouillonADeposer): Promise<void>;
+}
+
 /** Ouvre une fenêtre de rédaction dans la messagerie de l'utilisateur, sans jamais envoyer. */
 export interface OuvreurDeReponse {
   ouvrir(brouillon: BrouillonDeReponse): Promise<void>;

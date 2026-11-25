@@ -37,10 +37,13 @@ export {
 export type {
   Analyseur,
   BoiteDeReception,
+  BrouillonADeposer,
   CritereDeRecherche,
+  DepositaireDeBrouillon,
   Horloge,
   LotDeCourriels,
   OuvreurDeReponse,
+  PieceJointe,
   PressePapiers,
 } from './ports.js';
 export { schemaDAnalyseProposee } from './schemaDAnalyse.js';

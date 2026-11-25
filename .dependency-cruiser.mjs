@@ -47,6 +47,17 @@ export default {
       to: { path: 'node_modules/@anthropic-ai/', dependencyTypesNot: ['type-only'] },
     },
     {
+      name: 'imap-confine',
+      comment:
+        "Seul le paquet imap ouvre une connexion IMAP ou lit et compose des messages MIME (ADR 0008) : l'application de bureau passe par les API de Gmail et de Graph.",
+      severity: 'error',
+      from: { pathNot: '^packages/imap/' },
+      to: {
+        path: 'node_modules/(imapflow|mailparser|nodemailer)/',
+        dependencyTypesNot: ['type-only'],
+      },
+    },
+    {
       name: 'electron-confine',
       comment:
         "Electron n'est touché que par les composition roots (main.ts, preload.ts) : les adapters reçoivent ce dont ils ont besoin par injection, et restent testables.",

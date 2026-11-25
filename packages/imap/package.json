@@ -1,0 +1,38 @@
+{
+  "name": "@mailhelper/imap",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Boîte IMAP (réception, envoyés) et dépôt de brouillons, pour les messageries sans API (hébergeurs IMAP standard).",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@mailhelper/application": "workspace:*",
+    "@mailhelper/domain": "workspace:*",
+    "@mailhelper/messagerie": "workspace:*",
+    "imapflow": "2.12.2",
+    "mailparser": "3.15.0",
+    "nodemailer": "10.6.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/mailparser": "3.9.0",
+    "@types/node": "24.19.2",
+    "@types/nodemailer": "8.0.2",
+    "tsdown": "0.23.3",
+    "vitest": "4.1.12"
+  }
+}

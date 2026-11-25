@@ -1,13 +1,15 @@
 import type { BoiteDeReception, CritereDeRecherche, LotDeCourriels } from '@mailhelper/application';
 import type { SaisieDeCourriel } from '@mailhelper/domain';
-import { z } from 'zod';
 import {
+  enLotDeCourriels,
   estUneDiffusionDeMasse,
+  lireLeJson,
   lireUnCorrespondant,
+  parPaquets,
   valeurDeLEnTete,
   type EnTete,
-} from '../messagerie/enTetes.js';
-import { enLotDeCourriels, lireLeJson, parPaquets } from '../messagerie/recuperation.js';
+} from '@mailhelper/messagerie';
+import { z } from 'zod';
 import { texteDepuisLeHtml } from '../messagerie/texteDepuisLeHtml.js';
 
 const API = 'https://gmail.googleapis.com/gmail/v1/users/me';

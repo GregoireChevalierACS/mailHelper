@@ -1,6 +1,7 @@
 import {
   creerCourriel,
   creerInstant,
+  preparerLeBrouillon,
   type BrouillonDeReponse,
   type Courriel,
   type Instant,
@@ -9,7 +10,9 @@ import {
 import type {
   Analyseur,
   BoiteDeReception,
+  BrouillonADeposer,
   CritereDeRecherche,
+  DepositaireDeBrouillon,
   Horloge,
   LotDeCourriels,
   OuvreurDeReponse,
@@ -43,6 +46,30 @@ export function unCourriel(surcharges: Partial<SaisieDeCourriel> = {}): Courriel
   const courriel = creerCourriel(uneSaisieDeCourriel(surcharges));
   if (!courriel.ok) throw new Error(`fixture invalide : ${courriel.error.kind}`);
   return courriel.value;
+}
+
+/** Brouillon de réponse valide, adressé à l'expéditeur d'un courriel d'exemple. */
+export function unBrouillon(
+  surcharges: {
+    readonly nom?: string | null;
+    readonly adresse?: string;
+    readonly objet?: string;
+    readonly corps?: string;
+  } = {},
+): BrouillonDeReponse {
+  const courriel = unCourriel({
+    expediteur: {
+      nom: surcharges.nom === undefined ? 'Claire Martin' : surcharges.nom,
+      adresse: surcharges.adresse ?? 'claire.martin@exemple.fr',
+    },
+    objet: surcharges.objet ?? 'RE: Réunion de jeudi',
+  });
+  const brouillon = preparerLeBrouillon(
+    courriel,
+    surcharges.corps ?? 'Bonjour Claire,\n\nJe serai présent jeudi.\n\nPaul',
+  );
+  if (!brouillon.ok) throw new Error(`fixture invalide : ${brouillon.error.kind}`);
+  return brouillon.value;
 }
 
 /** Réponse brute du modèle, telle qu'un analyseur la renverrait. */
@@ -115,6 +142,27 @@ export class OuvreurQuiRetient implements OuvreurDeReponse {
     return Promise.resolve();
   }
 }
+
+/** Dépositaire en mémoire, tenu par le même contrat que l'adapter IMAP. */
+export class DepositaireEnMemoire implements DepositaireDeBrouillon {
+  readonly depots: BrouillonADeposer[] = [];
+
+  deposer(depot: BrouillonADeposer): Promise<void> {
+    // Copie des octets : modifier la pièce jointe après coup ne change pas le brouillon déposé.
+    this.depots.push({
+      brouillon: depot.brouillon,
+      piecesJointes: depot.piecesJointes.map((piece) => ({
+        ...piece,
+        contenu: Uint8Array.from(piece.contenu),
+      })),
+    });
+    return Promise.resolve();
+  }
+}
+
+export const depositaireEnPanne = (): DepositaireDeBrouillon => ({
+  deposer: () => Promise.reject(new Error('serveur injoignable')),
+});
 
 export const ouvreurEnPanne = (): OuvreurDeReponse => ({
   ouvrir: () => Promise.reject(new Error('aucune messagerie')),
