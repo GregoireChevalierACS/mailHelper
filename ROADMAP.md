@@ -41,8 +41,14 @@ Chaque phase a un critère vérifiable : elle est terminée quand il est rempli,
 - [ ] Test de lancement automatisé (Playwright pour Electron) sur l'exécutable empaqueté, en CI Windows.
 - [ ] Mises à jour automatiques (electron-updater) ou par l'outil de déploiement.
 
+## Contributions pour d'autres applications
+
+- [x] Paquets `@mailhelper/messagerie` et `@mailhelper/imap` : boîte IMAP (réception, envoyés) et dépôt de brouillons avec pièces jointes, pour [relaisMetier](https://github.com/GregoireChevalierACS/relaisMetier) (ADR 0008). Nouveau port `DepositaireDeBrouillon` et son contrat.
+- [ ] Rattacher le brouillon IMAP au fil d'origine (`In-Reply-To`, `References`) : demande d'ajouter le `Message-ID` au `Courriel` du domaine.
+
 ## Pièges rencontrés
 
+- **Recherche IMAP `SINCE` au jour près** : elle ignore l'heure et dépend du fuseau du serveur. La boîte IMAP cherche un jour plus tôt, puis filtre sur la date interne (ADR 0008).
 - **`ELECTRON_RUN_AS_NODE=1` hérité** (terminal intégré de VS Code) : Electron démarre alors comme Node, et `import { app } from 'electron'` échoue. Lancer avec la variable retirée (voir le README).
 - **Binaire Electron absent après `pnpm install`** : relancer `node node_modules/electron/install.js` dans `apps/desktop`.
 - **electron-builder et pnpm** : même avec `directories.app: dist`, electron-builder remonte au paquet du dépôt et y prend ses `node_modules` ; il faut les exclure dans `files` (ADR 0007).
