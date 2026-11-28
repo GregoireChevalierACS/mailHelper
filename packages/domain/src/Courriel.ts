@@ -13,6 +13,14 @@ export type IdDeCourriel = string & { readonly [marque]: 'IdDeCourriel' };
 
 const estUnId = (texte: string): texte is IdDeCourriel => texte !== '';
 
+/** Fichier joint à un courriel, reçu ou à déposer avec un brouillon : un devis PDF, par exemple. */
+export interface PieceJointe {
+  readonly nom: string;
+  /** Type MIME : « application/pdf »… */
+  readonly type: string;
+  readonly contenu: Uint8Array;
+}
+
 /** Un courriel reçu, tel que le domaine en a besoin pour le résumer et y répondre. */
 export interface Courriel {
   readonly id: IdDeCourriel;
@@ -24,6 +32,8 @@ export interface Courriel {
   readonly recuLe: Instant;
   /** Envoi en nombre (List-Unsubscribe, List-Id, Precedence: bulk…), repéré par l'adapter. */
   readonly diffusionDeMasse: boolean;
+  /** Fichiers joints (les images intégrées au corps HTML n'en sont pas). */
+  readonly piecesJointes: readonly PieceJointe[];
 }
 
 export interface SaisieDeCourriel {
@@ -34,6 +44,8 @@ export interface SaisieDeCourriel {
   readonly corps: string;
   readonly recuLe: number;
   readonly diffusionDeMasse: boolean;
+  /** Absentes quand l'adapter ne les lit pas (Gmail et Outlook, pour l'instant). */
+  readonly piecesJointes?: readonly PieceJointe[];
 }
 
 export type ErreurDeCourriel =
@@ -67,6 +79,7 @@ export function creerCourriel(saisie: SaisieDeCourriel): Result<Courriel, Erreur
     corps: saisie.corps.replace(/\r\n?/gu, '\n').trim(),
     recuLe: recuLe.value,
     diffusionDeMasse: saisie.diffusionDeMasse,
+    piecesJointes: saisie.piecesJointes ?? [],
   });
 }
 

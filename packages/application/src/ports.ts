@@ -1,4 +1,7 @@
-import type { BrouillonDeReponse, Courriel, Instant } from '@mailhelper/domain';
+import type { BrouillonDeReponse, Courriel, Instant, PieceJointe } from '@mailhelper/domain';
+
+/** Fichier joint à un brouillon : le devis PDF qui accompagne une réponse, par exemple. */
+export type { PieceJointe };
 
 export interface CritereDeRecherche {
   readonly depuis: Instant;
@@ -26,14 +29,6 @@ export interface BoiteDeReception {
  */
 export interface Analyseur {
   analyser(courriel: Courriel): Promise<unknown>;
-}
-
-/** Fichier joint à un brouillon : le devis PDF qui accompagne une réponse, par exemple. */
-export interface PieceJointe {
-  readonly nom: string;
-  /** Type MIME : « application/pdf »… */
-  readonly type: string;
-  readonly contenu: Uint8Array;
 }
 
 export interface BrouillonADeposer {

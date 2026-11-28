@@ -32,6 +32,7 @@ export {
   type Courriel,
   type ErreurDeCourriel,
   type IdDeCourriel,
+  type PieceJointe,
   type SaisieDeCourriel,
   type TexteAAnalyser,
 } from './Courriel.js';
