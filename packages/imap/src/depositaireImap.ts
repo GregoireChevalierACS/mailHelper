@@ -1,7 +1,12 @@
 import type { BrouillonADeposer, DepositaireDeBrouillon } from '@mailhelper/application';
 import type { SaisieDeCorrespondant } from '@mailhelper/domain';
 import MailComposer from 'nodemailer/lib/mail-composer/index.js';
-import { avecUneConnexion, cheminDuDossier, type ConnexionImap } from './connexion.js';
+import {
+  avecUneConnexion,
+  cheminDuDossier,
+  type ConnexionAuxDossiers,
+  type ConnexionImap,
+} from './connexion.js';
 
 export interface DependancesDepositaireImap {
   readonly connexion: ConnexionImap;
@@ -36,6 +41,24 @@ export function composerLeBrouillon(
 }
 
 /**
+ * Le dossier des brouillons, créé s'il manque. Deux dépôts simultanés dans une boîte qui n'en a
+ * pas tentent de le créer ensemble : le second échoue, trouve le dossier créé par le premier, et
+ * l'utilise. Si le dossier manque toujours, l'échec de la création est réel et remonte.
+ */
+export async function dossierDesBrouillons(client: ConnexionAuxDossiers): Promise<string> {
+  const chemin = await cheminDuDossier(client, '\\Drafts');
+  if (chemin !== null) return chemin;
+  try {
+    await client.mailboxCreate(DOSSIER_DES_BROUILLONS_PAR_DEFAUT);
+    return DOSSIER_DES_BROUILLONS_PAR_DEFAUT;
+  } catch (erreur) {
+    const creeEntreTemps = await cheminDuDossier(client, '\\Drafts');
+    if (creeEntreTemps === null) throw erreur;
+    return creeEntreTemps;
+  }
+}
+
+/**
  * Dépose les brouillons dans le dossier des brouillons de la boîte (IMAP APPEND, drapeau
  * \Draft) : l'utilisateur les retrouve dans sa messagerie, sur son ordinateur comme sur son
  * téléphone, les relit et les envoie lui-même. Aucun envoi n'est possible par ce chemin.
@@ -47,11 +70,7 @@ export function creerLeDepositaireImap({
   return {
     deposer: (depot) =>
       avecUneConnexion(connexion, async (client) => {
-        let chemin = await cheminDuDossier(client, '\\Drafts');
-        if (chemin === null) {
-          await client.mailboxCreate(DOSSIER_DES_BROUILLONS_PAR_DEFAUT);
-          chemin = DOSSIER_DES_BROUILLONS_PAR_DEFAUT;
-        }
+        const chemin = await dossierDesBrouillons(client);
         // \Seen : un brouillon que l'on vient d'écrire n'est pas un message « non lu ».
         await client.append(chemin, await composerLeBrouillon(expediteur, depot), [
           '\\Draft',
