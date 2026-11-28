@@ -29,6 +29,11 @@ export function composerUnCourrielRecu(saisie: SaisieDeCourriel): Promise<Buffer
     text: saisie.corps,
     date: new Date(saisie.recuLe),
     headers: saisie.diffusionDeMasse ? { 'List-Unsubscribe': '<mailto:stop@exemple.test>' } : {},
+    attachments: (saisie.piecesJointes ?? []).map((piece) => ({
+      filename: piece.nom,
+      contentType: piece.type,
+      content: Buffer.from(piece.contenu),
+    })),
   })
     .compile()
     .build();

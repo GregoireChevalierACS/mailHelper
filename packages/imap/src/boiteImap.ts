@@ -56,6 +56,14 @@ async function versLaSaisie(
     corps: message.text ?? '',
     recuLe,
     diffusionDeMasse: estUneDiffusionDeMasse(versLesEnTetes(message.headerLines)),
+    // Une image « related » est intégrée au corps HTML (logo, signature) : pas une pièce jointe.
+    piecesJointes: message.attachments
+      .filter((piece) => piece.related !== true)
+      .map((piece) => ({
+        nom: piece.filename ?? 'piece-jointe',
+        type: piece.contentType,
+        contenu: new Uint8Array(piece.content),
+      })),
   };
 }
 
