@@ -36,13 +36,19 @@ export async function avecUneConnexion<T>(
 
 export type UsageDeDossier = '\\Sent' | '\\Drafts';
 
+/** Ce que la recherche et la création d'un dossier demandent à la connexion (ImapFlow). */
+export interface ConnexionAuxDossiers {
+  list(): Promise<readonly { readonly path: string; readonly specialUse?: string | undefined }[]>;
+  mailboxCreate(chemin: string): Promise<unknown>;
+}
+
 /**
  * Chemin du dossier qui a cet usage (RFC 6154). imapflow le déduit aussi du nom (« Sent »,
  * « Drafts », « Brouillons »…) quand le serveur ne l'annonce pas, ce qui couvre les hébergeurs
  * courants.
  */
 export async function cheminDuDossier(
-  client: ImapFlow,
+  client: Pick<ConnexionAuxDossiers, 'list'>,
   usage: UsageDeDossier,
 ): Promise<string | null> {
   const dossiers = await client.list();

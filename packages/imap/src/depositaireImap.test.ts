@@ -6,7 +6,11 @@ import {
 import { simpleParser } from 'mailparser';
 import { describe, expect, it } from 'vitest';
 import { avecUneConnexion, cheminDuDossier, type ConnexionImap } from './connexion.js';
-import { creerLeDepositaireImap, DOSSIER_DES_BROUILLONS_PAR_DEFAUT } from './depositaireImap.js';
+import {
+  creerLeDepositaireImap,
+  DOSSIER_DES_BROUILLONS_PAR_DEFAUT,
+  dossierDesBrouillons,
+} from './depositaireImap.js';
 import { toutLire } from './lecture.js';
 import { deposerDesMessages, uneConnexionDeTest } from './testing/greenmail.js';
 
@@ -93,6 +97,39 @@ describe('dépositaire IMAP', () => {
     const deposes = await relireLeDossier(connexion);
     expect(deposes).toHaveLength(2);
     expect(deposes[0]?.lu.from?.value).toEqual([{ name: '', address: 'devis@atelier.test' }]);
+  });
+
+  it('dépose des brouillons simultanés dans une boîte sans dossier des brouillons', async () => {
+    const connexion = uneConnexionDeTest();
+    const depositaire = creerLeDepositaireImap({ connexion, expediteur: EXPEDITEUR });
+    // Chaque dépôt ouvre sa connexion : tous voient la boîte sans dossier, et tentent de le créer.
+    await Promise.all(
+      Array.from({ length: 5 }, () =>
+        depositaire.deposer({ brouillon: unBrouillon(), piecesJointes: [] }),
+      ),
+    );
+    const dossiers = await avecUneConnexion(connexion, async (client) =>
+      (await client.list()).map(({ path }) => path),
+    );
+    expect(
+      dossiers.filter((dossier) => dossier === DOSSIER_DES_BROUILLONS_PAR_DEFAUT),
+    ).toHaveLength(1);
+    expect(await relireLeDossier(connexion)).toHaveLength(5);
+  });
+
+  it('fait remonter l’échec de la création quand le dossier manque toujours', async () => {
+    const refus = new Error('création refusée');
+    const client = { list: () => Promise.resolve([]), mailboxCreate: () => Promise.reject(refus) };
+    await expect(dossierDesBrouillons(client)).rejects.toBe(refus);
+  });
+
+  it('prend le dossier créé entre-temps par un autre dépôt', async () => {
+    const listes = [[], [{ path: 'Brouillons', specialUse: '\\Drafts' }]];
+    const client = {
+      list: () => Promise.resolve(listes.shift() ?? []),
+      mailboxCreate: () => Promise.reject(new Error('existe déjà')),
+    };
+    expect(await dossierDesBrouillons(client)).toBe('Brouillons');
   });
 
   it('dépose dans le dossier des brouillons existant, quel que soit son nom', async () => {
