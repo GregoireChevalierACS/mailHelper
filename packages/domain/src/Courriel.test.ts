@@ -28,8 +28,15 @@ describe('Courriel', () => {
         corps: 'Ligne 1\nLigne 2\nLigne 3',
         recuLe: INSTANT_DE_REFERENCE,
         diffusionDeMasse: false,
+        piecesJointes: [],
       },
     });
+  });
+
+  it('garde les pièces jointes telles quelles', () => {
+    const pdf = { nom: 'devis.pdf', type: 'application/pdf', contenu: new Uint8Array([37, 80]) };
+    const courriel = creerCourriel(uneSaisieDeCourriel({ piecesJointes: [pdf] }));
+    expect(courriel.ok && courriel.value.piecesJointes).toEqual([pdf]);
   });
 
   it.each([

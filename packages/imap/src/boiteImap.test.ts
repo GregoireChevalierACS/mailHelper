@@ -8,6 +8,7 @@ import {
 } from '@mailhelper/application/testing';
 import { creerCourriel, type Courriel } from '@mailhelper/domain';
 import { ErreurDeMessagerie } from '@mailhelper/messagerie';
+import MailComposer from 'nodemailer/lib/mail-composer/index.js';
 import { describe, expect, it } from 'vitest';
 import { creerLaBoiteImap, saisieDuMessage } from './boiteImap.js';
 import {
@@ -112,6 +113,54 @@ describe('boîte IMAP', () => {
     await deposerDesMessages(connexion, 'INBOX', [{ source: html, recuLe: ilYA(1) }]);
     const lot = await creerLaBoiteImap({ connexion }).listerLesRecents(DEPUIS_24_HEURES);
     expect(lot.courriels[0]?.corps).toBe('Bonjour Paul');
+  });
+
+  it('lit les pièces jointes, octet pour octet, sans les images intégrées au corps', async () => {
+    const connexion = uneConnexionDeTest();
+    const pdf = new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x00, 0xff, 0x0a]);
+    const source = await new MailComposer({
+      from: 'claire@exemple.fr',
+      subject: 'TR: Devis',
+      html: '<p>Ci-joint <img src="cid:logo@exemple"></p>',
+      attachments: [
+        { filename: 'logo.png', cid: 'logo@exemple', content: Buffer.from([1, 2, 3]) },
+        { filename: 'D-2027-0001.pdf', contentType: 'application/pdf', content: Buffer.from(pdf) },
+      ],
+    })
+      .compile()
+      .build();
+    await deposerDesMessages(connexion, 'INBOX', [{ source, recuLe: ilYA(1) }]);
+    const lot = await creerLaBoiteImap({ connexion }).listerLesRecents(DEPUIS_24_HEURES);
+    expect(lot.courriels[0]?.piecesJointes).toEqual([
+      { nom: 'D-2027-0001.pdf', type: 'application/pdf', contenu: pdf },
+    ]);
+  });
+
+  it('nomme une pièce jointe sans nom de fichier', async () => {
+    const connexion = uneConnexionDeTest();
+    const source = [
+      'From: claire@exemple.fr',
+      'MIME-Version: 1.0',
+      'Content-Type: multipart/mixed; boundary="limite"',
+      '',
+      '--limite',
+      'Content-Type: text/plain; charset=utf-8',
+      '',
+      'Bonjour',
+      '--limite',
+      'Content-Type: application/octet-stream',
+      'Content-Disposition: attachment',
+      'Content-Transfer-Encoding: base64',
+      '',
+      'AQID',
+      '--limite--',
+      '',
+    ].join('\r\n');
+    await deposerDesMessages(connexion, 'INBOX', [{ source, recuLe: ilYA(1) }]);
+    const lot = await creerLaBoiteImap({ connexion }).listerLesRecents(DEPUIS_24_HEURES);
+    expect(lot.courriels[0]?.piecesJointes).toEqual([
+      { nom: 'piece-jointe', type: 'application/octet-stream', contenu: new Uint8Array([1, 2, 3]) },
+    ]);
   });
 
   it('repère un envoi en masse par ses en-têtes de liste', async () => {

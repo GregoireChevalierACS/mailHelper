@@ -71,6 +71,8 @@ export function verifierLeContratDeLaBoiteDeReception(
             corps: 'Bonjour,\nÀ jeudi ?',
             recuLe: saisie.recuLe,
             diffusionDeMasse: true,
+            // Aucune pièce jointe envoyée : chaque adapter en renvoie une liste vide.
+            piecesJointes: [],
           },
         ],
         illisibles: 0,
